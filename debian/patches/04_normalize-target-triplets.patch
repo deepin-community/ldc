@@ -1,0 +1,24 @@
+From 490bdcb0dd1c23f9552f116a3e9b68198fd36355 Mon Sep 17 00:00:00 2001
+From: Martin Kinkelin <kinke@users.noreply.github.com>
+Date: Fri, 29 Apr 2022 01:47:19 +0200
+Subject: [PATCH] Handle 'invalid' default LLVM target triples (#3972)
+
+By normalizing them, to resolve issues like #3971.
+---
+ driver/targetmachine.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/driver/targetmachine.cpp b/driver/targetmachine.cpp
+index 6af6fbf421..6fa452a3ca 100644
+--- a/driver/targetmachine.cpp
++++ b/driver/targetmachine.cpp
+@@ -351,7 +351,8 @@ createTargetMachine(const std::string targetTriple, const std::string arch,
+   // the one set at LLVM configure time.
+   llvm::Triple triple;
+   if (targetTriple.empty()) {
+-    triple = llvm::Triple(llvm::sys::getDefaultTargetTriple());
++    triple = llvm::Triple(
++        llvm::Triple::normalize(llvm::sys::getDefaultTargetTriple()));
+ 
+     // We only support OSX, so darwin should really be macosx.
+     if (triple.getOS() == llvm::Triple::Darwin) {

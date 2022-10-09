@@ -1,0 +1,334 @@
+.TH LDMD "1" "December 2009" "LLVM D Compiler" "User Commands"
+.SH NAME
+LDMD \- manual page for LLVM D Compiler
+.SH DESCRIPTION
+OVERVIEW: LLVM\-based D Compiler
+.PP
+USAGE: ldc [options] files \fB\-\-run\fR program args...
+.SS "OPTIONS:"
+.HP
+\fB\-D\fR                                           \- Generate documentation
+.HP
+\fB\-Dd=\fR<docdir>                                 \- Write documentation file to <docdir> directory
+.HP
+\fB\-Df=\fR<filename>                               \- Write documentation file to <filename>
+.HP
+\fB\-H\fR                                           \- Generate 'header' file
+.HP
+\fB\-Hd=\fR<hdrdir>                                 \- Write 'header' file to <hdrdir> directory
+.HP
+\fB\-Hf=\fR<filename>                               \- Write 'header' file to <filename>
+.HP
+\fB\-I=\fR<path>                                    \- Where to look for imports
+.HP
+\fB\-J=\fR<path>                                    \- Where to look for string imports
+.HP
+\fB\-L=\fR<linkerflag>                              \- Pass <linkerflag> to the linker
+.IP
+Setting the optimization level:
+.HP
+\fB\-O\fR                                         \- Equivalent to \fB\-O2\fR
+.HP
+\fB\-O0\fR                                        \- No optimizations (default)
+.HP
+\fB\-O1\fR                                        \- Simple optimizations
+.HP
+\fB\-O2\fR                                        \- Good optimizations
+.HP
+\fB\-O3\fR                                        \- Aggressive optimizations
+.HP
+\fB\-O4\fR                                        \- Link\-time optimization
+.HP
+\fB\-O5\fR                                        \- Link\-time optimization
+.HP
+\fB\-annotate\fR                                    \- Annotate the bitcode with human readable source code
+.HP
+\fB\-asm\-verbose\fR                                 \- Add comments to directives.
+.HP
+\fB\-c\fR                                           \- Do not link
+.HP
+\fB\-check\-printf\-calls\fR                          \- Validate printf call format strings against arguments
+.HP
+\fB\-code\-model\fR                                  \- Choose code model
+.TP
+=default
+\-   Target default code model
+.TP
+=small
+\-   Small code model
+.TP
+=kernel
+\-   Kernel code model
+.TP
+=medium
+\-   Medium code model
+.TP
+=large
+\-   Large code model
+.HP
+\fB\-d\fR                                           \- Allow deprecated language features
+.HP
+\fB\-d\-debug=\fR<level/idents>                      \- Compile in debug code >= <level> or identified by <idents>.
+.HP
+\fB\-d\-version=\fR<level/idents>                    \- Compile in version code >= <level> or identified by <idents>
+.HP
+\fB\-debuglib=\fR<lib,...>                          \- Set default libraries for debug build
+.HP
+\fB\-defaultlib=\fR<lib,...>                        \- Set default libraries for non\-debug build
+.HP
+\fB\-deps=\fR<filename>                             \- Write module dependencies to filename
+.HP
+\fB\-enable\-asserts\fR                              \- (*) Enable assertions
+.HP
+\fB\-enable\-boundscheck\fR                          \- (*) Enable array bounds checks
+.HP
+\fB\-enable\-contracts\fR                            \- (*) Enable function pre\- and post\-conditions
+.HP
+\fB\-disable\-d\-passes\fR                            \- Disable D\-specific passes in \fB\-O\fR<N>
+.HP
+\fB\-disable\-excess\-fp\-precision\fR                 \- Disable optimizations that may increase FP precision
+.HP
+\fB\-disable\-fp\-elim\fR                             \- Disable frame pointer elimination optimization
+.HP
+\fB\-disable\-gc2stack\fR                            \- Disable promotion of GC allocations to stack memory in \fB\-O\fR<N>
+.HP
+\fB\-enable\-inlining\fR                             \- (*) Enable function inlining in \fB\-O\fR<N>
+.HP
+\fB\-enable\-invariants\fR                           \- (*) Enable invariants
+.HP
+\fB\-disable\-post\-RA\-scheduler\fR                   \- Disable scheduling after register allocation
+.HP
+\fB\-enable\-postconditions\fR                       \- (*) Enable function postconditions
+.HP
+\fB\-enable\-preconditions\fR                        \- (*) Enable function preconditions
+.HP
+\fB\-disable\-simplify\-drtcalls\fR                   \- Disable simplification of runtime calls in \fB\-O\fR<N>
+.HP
+\fB\-disable\-spill\-fusing\fR                        \- Disable fusing of spill code into instructions
+.HP
+\fB\-enable\-correct\-eh\-support\fR                   \- Make the \fB\-lowerinvoke\fR pass insert expensive, but correct, EH code
+.HP
+\fB\-enable\-eh\fR                                   \- Emit DWARF exception handling (default if target supports)
+.HP
+\fB\-enable\-finite\-only\-fp\-math\fR                  \- Enable optimizations that assumes non\- NaNs / +\-Infs
+.HP
+\fB\-enable\-fp\-mad\fR                               \- Enable less precise MAD instructions to be generated
+.HP
+\fB\-enable\-load\-pre\fR                             \-
+.HP
+\fB\-enable\-sjlj\-eh\fR                              \- Emit SJLJ exception handling (default if target supports)
+.HP
+\fB\-enable\-unsafe\-fp\-math\fR                       \- Enable optimizations that may decrease FP precision
+.HP
+\fB\-float\-abi\fR                                   \- Choose float ABI type
+.TP
+=default
+\-   Target default float ABI type
+.TP
+=soft
+\-   Soft float ABI (implied by \fB\-soft\-float\fR)
+.TP
+=hard
+\-   Hard float ABI (uses FP registers)
+.IP
+Generating debug information:
+.HP
+\fB\-g\fR                                         \- Generate debug information
+.HP
+\fB\-gc\fR                                        \- Same as \fB\-g\fR, but pretend to be C
+.HP
+\fB\-help\fR                                        \- Display available options (\fB\-\-help\-hidden\fR for more)
+.HP
+\fB\-ignore\fR                                      \- Ignore unsupported pragmas
+.HP
+\fB\-internalize\-public\-api\-file=\fR<filename>      \- A file containing list of symbol names to preserve
+.HP
+\fB\-internalize\-public\-api\-list=\fR<list>          \- A list of symbol names to preserve
+.HP
+\fB\-join\-liveintervals\fR                          \- Coalesce copies (default=true)
+.HP
+\fB\-limit\-float\-precision=\fR<uint>                \- Generate low\-precision inline sequences for some float libcalls
+.HP
+\fB\-m32\fR                                         \- 32 bit target
+.HP
+\fB\-m64\fR                                         \- 64 bit target
+.HP
+\fB\-march=\fR<string>                              \- Architecture to generate code for:
+.HP
+\fB\-mattr=\fR<a1,+a2,\-a3,...>                      \- Target specific attributes (\fB\-mattr\fR=\fIhelp\fR for details)
+.HP
+\fB\-mcpu=\fR<cpu\-name>                             \- Target a specific cpu type (\fB\-mcpu\fR=\fIhelp\fR for details)
+.HP
+\fB\-mtriple=\fR<string>                            \- Override target triple
+.HP
+\fB\-nested\-ctx\fR                                  \- How to construct a nested function's context:
+.TP
+=array
+\-   Array of pointers to variables (including multi\-level)
+.TP
+=hybrid
+\-   List of pointers to structs of variables, one per level.
+.HP
+\fB\-noasm\fR                                       \- Disallow use of inline assembler
+.HP
+\fB\-nodefaultlib\fR                                \- Don't add a default library for linking implicitly
+.HP
+\fB\-noruntime\fR                                   \- Do not allow code that generates implicit runtime calls
+.HP
+\fB\-noverify\fR                                    \- Do not run the validation pass before writing bitcode
+.HP
+\fB\-nozero\-initialized\-in\-bss\fR                   \- Don't place zero\-initialized symbols into bss section
+.HP
+\fB\-o\-\fR                                          \- Do not write object file
+.HP
+\fB\-od=\fR<objdir>                                 \- Write object files to directory <objdir>
+.HP
+\fB\-of=\fR<filename>                               \- Use <filename> as output file name
+.HP
+\fB\-op\fR                                          \- Do not strip paths from source file
+.HP
+\fB\-oq\fR                                          \- Write object files with fully qualified names
+.HP
+\fB\-output\-bc\fR                                   \- Write LLVM bitcode
+.HP
+\fB\-output\-ll\fR                                   \- Write LLVM IR
+.HP
+\fB\-output\-o\fR                                    \- Write native object
+.HP
+\fB\-output\-s\fR                                    \- Write native assembly
+.HP
+\fB\-pre\-RA\-sched\fR                                \- Instruction schedulers available (before register allocation):
+.TP
+=fast
+\-   Fast suboptimal list scheduling
+.TP
+=list\-td
+\-   Top\-down list scheduler
+.TP
+=list\-tdrr
+\-   Top\-down register reduction list scheduling
+.TP
+=list\-burr
+\-   Bottom\-up register reduction list scheduling
+.TP
+=default
+\-   Best scheduler for the target
+.HP
+\fB\-print\-machineinstrs\fR                         \- Print generated machine code
+.HP
+\fB\-profile\-estimator\-loop\-weight=\fR<loop\-weight> \- Number of loop executions used for profile\-estimator
+.HP
+\fB\-profile\-info\-file=\fR<filename>                \- Profile file loaded by \fB\-profile\-loader\fR
+.HP
+\fB\-profile\-randomness\fR                          \- How to randomly choose to profile:
+.TP
+=global
+\-   global counter
+.TP
+=ra_global
+\-   register allocated global counter
+.TP
+=rdcc
+\-   cycle counter
+.HP
+\fB\-realign\-stack\fR                               \- Realign stack if needed
+.HP
+\fB\-regalloc\fR                                    \- Register allocator to use: (default = linearscan)
+.TP
+=linearscan
+\-   linear scan register allocator
+.HP
+\fB\-release\fR                                     \- Disables asserts, invariants, contracts and boundscheck
+.HP
+\fB\-relocation\-model\fR                            \- Choose relocation model
+.TP
+=default
+\-   Target default relocation model
+.TP
+=static
+\-   Non\-relocatable code
+.TP
+=pic
+\-   Fully relocatable, position independent code
+.TP
+=dynamic\-no\-pic
+\-   Relocatable external references, non\-relocatable code
+.HP
+\fB\-rewriter\fR                                    \- Rewriter to use: (default: local)
+.TP
+=local
+\-   local rewriter
+.TP
+=trivial
+\-   trivial rewriter
+.HP
+\fB\-run=\fR<string>                                \- program args...
+.HP
+\fB\-schedule\-livein\-copies\fR                      \- Schedule copies of livein registers
+.HP
+\fB\-schedule\-spills\fR                             \- Schedule spill code
+.HP
+\fB\-shrink\-wrap\fR                                 \- Shrink wrap callee\-saved register spills/restores
+.HP
+\fB\-singleobj\fR                                   \- Create only a single output object file
+.HP
+\fB\-soft\-float\fR                                  \- Generate software floating point library calls
+.HP
+\fB\-stack\-alignment=\fR<uint>                      \- Override default stack alignment
+.HP
+\fB\-stack\-protector\-buffer\-size=\fR<uint>          \- Lower bound for a buffer to be considered for stack protection
+.HP
+\fB\-stats\fR                                       \- Enable statistics output from program
+.HP
+\fB\-tailcallopt\fR                                 \- Turn on tail call optimization.
+.HP
+\fB\-time\-passes\fR                                 \- Time each pass, printing elapsed time for each on exit
+.HP
+\fB\-unittest\fR                                    \- Compile in unit tests
+.HP
+\fB\-unwind\-tables\fR                               \- Generate unwinding tables for all functions
+.HP
+\fB\-v\fR                                           \- Verbose
+.HP
+\fB\-v\-cg\fR                                        \- Verbose codegen
+.HP
+\fB\-verify\-dom\-info\fR                             \- Verify dominator info (time consuming)
+.HP
+\fB\-version\fR                                     \- Display the version of this program
+.HP
+\fB\-vv\fR                                          \- Very verbose
+.HP
+\fB\-w\fR                                           \- Enable warnings
+.HP
+\fB\-x86\-asm\-syntax\fR                              \- Choose style of code to emit from X86 backend:
+.TP
+=att
+\-   Emit AT&T\-style assembly
+.TP
+=intel
+\-   Emit Intel\-style assembly
+.PP
+\fB\-d\-debug\fR can also be specified without options, in which case it enables all
+debug checks (i.e. (asserts, boundchecks, contracts and invariants) as well
+as acting as \fB\-d\-debug\fR=\fI1\fR
+.PP
+Options marked with (*) also have a \fB\-disable\-FOO\fR variant with inverted
+meaning.
+.PP
+based on DMD v1.051 and llvm 2.6 (Wed Dec  2 17:39:53 2009)
+Copyright (c) 1999\-2009 by Digital Mars and Tomas Lindquist Olsen
+written by Walter Bright and Tomas Lindquist Olsen
+D Language Documentation: http://www.digitalmars.com/d/1.0/index.html
+LDC Homepage: http://www.dsource.org/projects/ldc
+.SH "SEE ALSO"
+The full documentation for
+.B LLVM
+is maintained as a Texinfo manual.  If the
+.B info
+and
+.B LLVM
+programs are properly installed at your site, the command
+.IP
+.B info LLVM
+.PP
+should give you access to the complete manual.

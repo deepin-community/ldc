@@ -1,0 +1,4 @@
+# for the -debug library builds, which make sense to ship with
+# the -dev package of their library
+libphobos2-ldc-shared-dev: link-to-shared-library-in-wrong-package
+libphobos2-ldc-shared-dev: package-name-doesnt-match-sonames

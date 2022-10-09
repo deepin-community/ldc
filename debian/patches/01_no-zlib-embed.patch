@@ -1,0 +1,69 @@
+Description:  Remove embedded zlib
+Author: Matthias Klumpp <mak@debian.org>
+
+--- a/runtime/CMakeLists.txt
++++ b/runtime/CMakeLists.txt
+@@ -44,7 +44,7 @@
+ set(COMPILE_ALL_D_FILES_AT_ONCE ON                            CACHE BOOL   "Compile all D files for the runtime libs in a single command line instead of separately. Disabling this is useful for many CPU cores and/or iterative development.")
+ set(RT_ARCHIVE_WITH_LDC   ON                                  CACHE STRING "Whether to archive the static runtime libs via LDC instead of CMake archiver")
+ set(RT_CFLAGS             ""                                  CACHE STRING "Runtime extra C compiler flags, separated by ' '")
+-set(LD_FLAGS              ""                                  CACHE STRING "Runtime extra C linker flags, separated by ' '")
++set(LD_FLAGS              "-lz"                               CACHE STRING "Runtime extra C linker flags, separated by ' '")
+ set(C_SYSTEM_LIBS         AUTO                                CACHE STRING "C system libraries for linking shared libraries and test runners, separated by ';'")
+ set(TARGET_SYSTEM         AUTO                                CACHE STRING "Target OS/toolchain for cross-compilation (e.g., 'Linux;UNIX', 'Darwin;APPLE;UNIX', 'Windows;MSVC')")
+ set(RT_SUPPORT_SANITIZERS OFF                                 CACHE BOOL   "Build runtime libraries with sanitizer support (e.g. for AddressSanitizer)")
+@@ -124,9 +124,9 @@
+         if("${TARGET_SYSTEM}" MATCHES "Android")
+             set(C_SYSTEM_LIBS m c)
+         elseif("${TARGET_SYSTEM}" MATCHES "Linux")
+-            set(C_SYSTEM_LIBS m pthread rt dl)
++            set(C_SYSTEM_LIBS m pthread rt dl z)
+         else()
+-            set(C_SYSTEM_LIBS m pthread)
++            set(C_SYSTEM_LIBS m pthread z)
+         endif()
+         set(C_SYSTEM_LIBS_SHARED ${C_SYSTEM_LIBS})
+     endif()
+@@ -236,6 +236,13 @@
+         ${PHOBOS2_DIR}/etc/c/zlib/test/infcover.c
+         ${PHOBOS2_DIR}/etc/c/zlib/test/minigzip.c
+     )
++
++    # don't embed zlib
++    foreach(item ${PHOBOS2_C})
++      if(${item} MATCHES ".*/c/zlib/.*.c")
++        list(REMOVE_ITEM PHOBOS2_C ${item})
++      endif()
++    endforeach()
+ endif()
+ 
+ #
+@@ -629,7 +636,7 @@
+         ${druntime_o} ${DRUNTIME_C} ${DRUNTIME_ASM})
+     set_common_library_properties(druntime-ldc${target_suffix}
+         druntime-ldc${lib_suffix} ${output_path}
+-        "${c_flags}" "${ld_flags}" ${is_shared}
++        "${c_flags}" "${ld_flags} -lz" ${is_shared}
+     )
+ 
+     # When building a shared library, we need to link in all the default
+@@ -646,7 +653,7 @@
+             ${phobos2_o} ${PHOBOS2_C})
+         set_common_library_properties(phobos2-ldc${target_suffix}
+             phobos2-ldc${lib_suffix} ${output_path}
+-            "${c_flags}" "${ld_flags}" ${is_shared}
++            "${c_flags}" "${ld_flags} -lz" ${is_shared}
+         )
+ 
+         if("${is_shared}" STREQUAL "ON")
+--- a/cmake/Modules/BuildDExecutable.cmake
++++ b/cmake/Modules/BuildDExecutable.cmake
+@@ -74,7 +74,7 @@
+             RUNTIME_OUTPUT_DIRECTORY ${output_dir}
+             LINKER_LANGUAGE          CXX
+         )
+-        target_link_libraries(${target_name} ${link_deps} ${linker_args} ${D_LINKER_ARGS})
++        target_link_libraries(${target_name} ${link_deps} ${linker_args} ${D_LINKER_ARGS} "-lz")
+     else()
+         # Use a response file on Windows when compiling separately, in order not to
+         # exceed the max command-line length.

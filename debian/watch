@@ -1,0 +1,4 @@
+version=3
+
+opts=uversionmangle=s/-/~/ \
+  https://github.com/ldc-developers/ldc/releases .*/ldc-(.*)-src\.tar\.gz

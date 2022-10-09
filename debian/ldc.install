@@ -1,0 +1,4 @@
+etc/bash_completion.d/*		usr/share/bash-completion/completions/
+etc/ldc2.conf
+usr/bin/*
+usr/lib/ldc_rt.dso.o

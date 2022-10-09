@@ -1,0 +1,4 @@
+01_no-zlib-embed.patch
+02_ldc_include_path.diff
+03_ldc-no-default-rpath.patch
+04_normalize-target-triplets.patch

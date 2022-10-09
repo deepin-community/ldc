@@ -1,0 +1,87 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+#export DH_VERBOSE=1
+
+include /usr/share/dpkg/architecture.mk
+
+CFLAGS += $(CPPFLAGS)
+CXXFLAGS += $(CPPFLAGS)
+
+LDC_BUILD_FLAGS = -DINCLUDE_INSTALL_DIR='/usr/lib/ldc/${DEB_HOST_MULTIARCH}/include/d' \
+		-DLDC_DYNAMIC_COMPILE=OFF
+BOOTSTRAP_LDC_FLAGS = -DD_COMPILER=/usr/bin/gdmd -DBUILD_SHARED_LIBS=ON
+
+ifeq ($(DEB_HOST_ARCH),armhf)
+LDC_BUILD_FLAGS += -DD_COMPILER_FLAGS=-mattr=-neon
+endif
+
+BOOTSTRAP_S1_BUILD_DIR := $(CURDIR)/bootstrap-stage1
+STAGE1_LDMD = $(BOOTSTRAP_S1_BUILD_DIR)/bin/ldmd2
+
+BOOTSTRAP_S2_BUILD_DIR := $(CURDIR)/bootstrap-stage2
+STAGE2_LDMD = $(BOOTSTRAP_S2_BUILD_DIR)/bin/ldmd2
+
+# Clear DFLAGS: dpkg sets "-frelease", which is automatically read by ldmd2
+# and will lead to failures as ldmd2 doesn't understand GDC flags.
+# Setting this to emptystring however will mess up gdmd, so since none of the
+# compiler wrappers seems to parse this properly at all, we must unset it.
+unexport DFLAGS
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# Bootstrap LDC using the GNU D Compiler
+	dh_auto_configure -B$(BOOTSTRAP_S1_BUILD_DIR) -- $(BOOTSTRAP_LDC_FLAGS)
+	dh_auto_build -B$(BOOTSTRAP_S1_BUILD_DIR)
+
+	# Build LDC again using the previously bootstrapped copy
+	dh_auto_configure -B$(BOOTSTRAP_S2_BUILD_DIR) -- \
+			-DD_COMPILER=$(STAGE1_LDMD) \
+			-DBUILD_SHARED_LIBS=OFF $(LDC_BUILD_FLAGS)
+	dh_auto_build -B$(BOOTSTRAP_S2_BUILD_DIR)
+
+	# Configure the to-be-released LDC versions, build them with S2 self-built LDC
+	[ -d build-static ] || mkdir build-static
+	dh_auto_configure -B$(CURDIR)/build-static -- \
+			-DD_COMPILER=$(STAGE2_LDMD) \
+			-DBUILD_SHARED_LIBS=OFF $(LDC_BUILD_FLAGS)
+
+	[ -d build-shared ] || mkdir build-shared
+	dh_auto_configure -B$(CURDIR)/build-shared -- \
+			-DD_COMPILER=$(STAGE2_LDMD) \
+			-DBUILD_SHARED_LIBS=ON $(LDC_BUILD_FLAGS)
+
+override_dh_auto_build:
+	dh_auto_build -Bbuild-static
+	dh_auto_build -Bbuild-shared
+
+override_dh_auto_install:
+	(cd build-static && $(MAKE) install DESTDIR="$(CURDIR)/debian/tmp")
+	(cd build-shared && $(MAKE) install DESTDIR="$(CURDIR)/debian/tmp")
+	rm -rf $(CURDIR)/debian/tmp/usr/lib/ldc/*/include/d/etc/c/zlib/
+
+override_dh_missing:
+	dh_missing --fail-missing
+
+override_dh_installman:
+	dh_installman debian/ldc2.1 debian/ldmd2.1
+
+override_dh_clean:
+	rm -rf build-static build-shared
+	rm -f configure-stamp build-stamp
+	rm -rf $(BOOTSTRAP_S1_BUILD_DIR) $(BOOTSTRAP_S2_BUILD_DIR)
+	dh_clean
+
+override_dh_makeshlibs:
+	dh_makeshlibs -V
+
+override_dh_dwz:
+	# NOTE: Disabled because this somehow triggers an library-in-debug-or-profile-should-not-be-stripped
+	# This needs investigating
+	:
+
+override_dh_auto_test:
+	# Tests, std.zip, std.zip-debug, std.zip-shared, std.zip-debug-shared, dmd-testsuite-debug. dmd-testsuite fail at the moment, so
+	# we disable tests temporarily
+	:

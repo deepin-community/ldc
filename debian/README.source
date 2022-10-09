@@ -1,0 +1,46 @@
+Building from source
+--------------------
+
+1) Check out the Git repository
+
+2) Build using git buildpackage, i.e.
+   `gbp buildpackage`
+
+Importing new source tarball
+----------------------------
+
+1) Download new LDC release tarball
+
+2) Repackage the LDC release tarball, fixing line endings:
+   (needs dos2unix installed)
+   ```
+   tar -xzf <ldc-release>.tar.gz
+   find ldc-<version>-src/ -type f -exec dos2unix {} \;
+   tar -czf ldc_<version>.orig.tar.gz ./ldc-<version>-src
+   ```
+
+   This silliness is needed because of two issues: LDC containing
+   files with CRLF lineendings, and gbp dropping them unconditionally,
+   leading to a pristine-tar conflict later.
+
+   For reference see the following issues:
+   https://github.com/ldc-developers/ldc/issues/2402
+   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=719363
+
+3) Import the new sources: `gbp import-orig /path/to/ldc_<version>.orig.tar.gz`
+
+4) Refresh and adjust all patches, commit changes
+
+5) Update phobos/druntime library package names to the new SONAMEs, add
+   Conflicts: entry on old phobos library to make the transition safer for users,
+   do any other necessary changes.
+
+6) Update changelog (`gbp dch`), manual edits
+
+7) Build package the way you like (e.g. `gbp buildpackage --git-builder='debspawn build sid --sign'`)
+
+8) Run lintian before uploading, make especially sure LDC did not sneak in a statically linked
+    copy of any library (like zlib):
+    `lintian -IE --pedantic *.changes`
+
+9) Upload.

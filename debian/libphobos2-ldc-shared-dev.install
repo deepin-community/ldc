@@ -1,0 +1,7 @@
+#!/usr/bin/dh-exec
+usr/lib/ldc/${DEB_HOST_MULTIARCH}/*	usr/lib/ldc/${DEB_HOST_MULTIARCH}/
+usr/lib/*-ldc.a				usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*-ldc-debug.a			usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*-ldc-shared.so			usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*-ldc-debug-shared.*		usr/lib/${DEB_HOST_MULTIARCH}/
+usr/lib/*-ldc-debug-shared.*		usr/lib/${DEB_HOST_MULTIARCH}/
